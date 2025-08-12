@@ -13,9 +13,13 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/home': (context) => const HomeScreen(),
+      },
       home: const HomeScreen(),
       theme: ThemeData(
         useMaterial3: true,
+        splashFactory: NoSplash.splashFactory,
         colorScheme: lightScheme,
         textTheme: lightText,
         appBarTheme: AppBarTheme(
