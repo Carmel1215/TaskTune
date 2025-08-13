@@ -4,6 +4,7 @@ import 'package:tasktune/screens/stats_screen.dart';
 import 'package:tasktune/screens/task_review_screen.dart';
 import 'package:tasktune/themes/light_theme.dart';
 import 'package:tasktune/themes/dark_theme.dart';
+import 'package:tasktune/widgets/app_scaffold.dart';
 
 void main() {
   runApp(const App());
@@ -15,12 +16,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/taskreview': (context) => const TaskReviewScreen(),
-        '/stats': (context) => const StatsScreen(),
-      },
-      initialRoute: '/',
+      home: const AppScaffold(),
       theme: ThemeData(
         useMaterial3: true,
         splashFactory: NoSplash.splashFactory,

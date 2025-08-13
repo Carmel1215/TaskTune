@@ -1,39 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:tasktune/screens/home_screen.dart';
+import 'package:tasktune/screens/stats_screen.dart';
+import 'package:tasktune/screens/task_review_screen.dart';
 
-class AppScaffold extends StatelessWidget {
-  final int index;
-  final PreferredSizeWidget? appBar;
-  final Widget body;
-  const AppScaffold({
-    super.key,
-    required this.index,
-    this.appBar,
-    required this.body,
-  });
+class AppScaffold extends StatefulWidget {
+  const AppScaffold({super.key});
 
-  void _onTap(BuildContext context, int i) {
-    if (i == index) return;
-    switch (i) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/stats');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/');
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/taskreview');
-        break;
-    }
+  @override
+  State<AppScaffold> createState() => _AppScaffoldState();
+}
+
+class _AppScaffoldState extends State<AppScaffold> {
+  final _controller = PageController(initialPage: 1, keepPage: true);
+  int _index = 1;
+
+  final _pages = const [
+    StatsScreen(key: PageStorageKey('stats')),
+    HomeScreen(key: PageStorageKey('home')),
+    TaskReviewScreen(key: PageStorageKey('taskreview')),
+  ];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTap(int i) {
+    if (i == _index) return;
+    setState(() => _index = i);
+    _controller.animateToPage(
+      i,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar,
-      body: body,
+      body: PageView(
+        controller: _controller,
+        onPageChanged: (i) => setState(() => _index = i),
+        physics: const NeverScrollableScrollPhysics(),
+        children: _pages,
+      ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) => _onTap(context, i),
+        selectedIndex: _index,
+        onDestinationSelected: _onTap,
         destinations: [
           const NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),

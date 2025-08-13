@@ -6,25 +6,19 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      index: 1,
-      appBar: AppBar(
-        title: const Text('Task Tune'),
-      ),
-      body: const SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              HeadSection(),
-              SummaryCard(
-                fatigue: 1.0,
-                done: 1,
-                total: 2,
-              ),
-            ],
-          ),
+    return const SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            HeadSection(),
+            SummaryCard(
+              fatigue: 1.0,
+              done: 1,
+              total: 2,
+            ),
+          ],
         ),
       ),
     );

@@ -6,15 +6,9 @@ class StatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      index: 0,
-      appBar: AppBar(
-        title: const Text('통계'),
-      ),
-      body: const SafeArea(
-        child: Center(
-          child: Text('통계 스크린'),
-        ),
+    return const SafeArea(
+      child: Center(
+        child: Text('통계 스크린'),
       ),
     );
   }

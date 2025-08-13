@@ -6,15 +6,9 @@ class TaskReviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      index: 2,
-      appBar: AppBar(
-        title: const Text('할 일 리뷰'),
-      ),
-      body: const SafeArea(
-        child: Center(
-          child: Text('할 일 리뷰 스크린'),
-        ),
+    return const SafeArea(
+      child: Center(
+        child: Text('할 일 리뷰 스크린'),
       ),
     );
   }
