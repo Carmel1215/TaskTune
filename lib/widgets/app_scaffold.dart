@@ -39,6 +39,9 @@ class _AppScaffoldState extends State<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Task Tune'),
+      ),
       body: PageView(
         controller: _controller,
         onPageChanged: (i) => setState(() => _index = i),
