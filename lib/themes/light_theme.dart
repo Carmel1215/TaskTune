@@ -10,7 +10,13 @@ final lightScheme = const ColorScheme(
   onTertiary: Colors.black,
   error: Colors.red,
   onError: Colors.white,
-  surface: Color.fromARGB(255, 255, 255, 255),
+
+  surface: Color(0xFFFAF9F6), // 기준 surface
+  surfaceContainerLowest: Color(0xFFFFFDFB), // 가장 밝음, 주황기 살짝
+  surfaceContainerLow: Color(0xFFF7F4F0), // 약간 어두움, 따뜻한 베이지
+  surfaceContainer: Color(0xFFF0ECE7), // 중간 톤, 주황빛 유지
+  surfaceContainerHigh: Color(0xFFE8E3DE), // 더 어두움, 베이지 회색
+  surfaceContainerHighest: Color(0xFFE0DAD5), // 가장 어둡게, 부드러운 브라운 기
   onSurface: Colors.black,
 );
 
