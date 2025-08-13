@@ -7,7 +7,7 @@ class TaskReviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SafeArea(
       child: Center(
-        child: Text('할 일 리뷰 스크린'),
+        child: Text('할 일 분석 스크린'),
       ),
     );
   }

@@ -39,13 +39,22 @@ class _AppScaffoldState extends State<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('할 일 추가 버튼 클릭')),
+          );
+        },
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         title: const Text('Task Tune'),
       ),
       body: PageView(
         controller: _controller,
         onPageChanged: (i) => setState(() => _index = i),
-        physics: const NeverScrollableScrollPhysics(),
+        //physics: const NeverScrollableScrollPhysics(), // 손으로 스와이핑 막는 코드
         children: _pages,
       ),
       bottomNavigationBar: NavigationBar(
