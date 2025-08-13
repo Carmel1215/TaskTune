@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:tasktune/widgets/app_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
+      index: 1,
       appBar: AppBar(
-        title: const Text(
-          'Task Tune',
-        ),
+        title: const Text('Task Tune'),
       ),
       body: const SafeArea(
         child: SingleChildScrollView(
@@ -83,27 +83,41 @@ class SummaryCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
 
     return Card(
-      elevation: 1,
+      elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             SizedBox(
-              width: 84,
-              height: 84,
+              width: 100,
+              height: 100,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    value: fatigue,
-                    strokeWidth: 10,
-                    backgroundColor: scheme.surfaceContainerHighest.withValues(
-                      alpha: 0.4,
+                  Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      height: 36,
+                      width: 36,
+                      child: CircularProgressIndicator(
+                        value: fatigue,
+                        strokeWidth: 10,
+                        backgroundColor: scheme.surfaceContainerHighest
+                            .withValues(
+                              alpha: 0.4,
+                            ),
+                        valueColor: AlwaysStoppedAnimation(scheme.primary),
+                      ),
                     ),
-                    valueColor: AlwaysStoppedAnimation(scheme.primary),
                   ),
-                  Text('${(fatigue * 100).round()}%', style: text.titleMedium),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Text(
+                      '${(fatigue * 100).round()}%',
+                      style: text.titleMedium,
+                    ),
+                  ),
                 ],
               ),
             ),

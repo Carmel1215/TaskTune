@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasktune/screens/home_screen.dart';
+import 'package:tasktune/screens/stats_screen.dart';
+import 'package:tasktune/screens/task_review_screen.dart';
 import 'package:tasktune/themes/light_theme.dart';
 import 'package:tasktune/themes/dark_theme.dart';
 
@@ -14,21 +16,21 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        '/home': (context) => const HomeScreen(),
+        '/': (context) => const HomeScreen(),
+        '/taskreview': (context) => const TaskReviewScreen(),
+        '/stats': (context) => const StatsScreen(),
       },
-      home: const HomeScreen(),
+      initialRoute: '/',
       theme: ThemeData(
         useMaterial3: true,
         splashFactory: NoSplash.splashFactory,
         colorScheme: lightScheme,
         textTheme: lightText,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           centerTitle: true,
           surfaceTintColor: Colors.transparent,
-          foregroundColor: lightScheme.onPrimary,
-          backgroundColor: lightScheme.primary,
           shadowColor: Colors.black,
-          elevation: 5,
+          elevation: 3,
         ),
       ),
       darkTheme: ThemeData(
