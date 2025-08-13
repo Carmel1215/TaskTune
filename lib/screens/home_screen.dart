@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tasktune/widgets/app_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
