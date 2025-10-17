@@ -15,8 +15,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   Gender _gender = Gender.male;
-  final UnitSystem _unit = UnitSystem.metric;
-  final RmrFormula _formula = RmrFormula.mifflin;
 
   final _ageCtrl = TextEditingController();
   final _heightCtrl = TextEditingController();
@@ -81,10 +79,10 @@ class _SettingsPageState extends State<SettingsPage> {
           TextFormField(
             controller: _heightCtrl,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: '키',
-              suffixText: _unit == UnitSystem.metric ? 'cm' : 'in',
-              prefixIcon: const Icon(Icons.height),
+              suffixText: 'cm',
+              prefixIcon: Icon(Icons.height),
             ),
           ),
           const SizedBox(height: 12),
@@ -93,10 +91,10 @@ class _SettingsPageState extends State<SettingsPage> {
           TextFormField(
             controller: _weightCtrl,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: '체중',
-              suffixText: _unit == UnitSystem.metric ? 'kg' : 'lb',
-              prefixIcon: const Icon(Icons.monitor_weight_outlined),
+              suffixText: 'kg',
+              prefixIcon: Icon(Icons.monitor_weight_outlined),
             ),
           ),
 
