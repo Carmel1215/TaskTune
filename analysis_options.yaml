@@ -29,3 +29,6 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 formatter:
   trailing_commas: preserve
+analyzer:
+  errors:
+    empty_constructor_bodies: ignore
