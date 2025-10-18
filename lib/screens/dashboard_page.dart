@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 // 할 일 데이터 모델: fatigue 타입을 int로 유지 (1-100)
 class ToDo {

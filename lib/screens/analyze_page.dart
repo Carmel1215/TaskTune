@@ -380,14 +380,15 @@ class AnalyzePage extends StatefulWidget {
   State<AnalyzePage> createState() => _AnalyzePageState();
 }
 
-class _AnalyzePageState extends State<AnalyzePage> {
-  final _c = TextEditingController();
-  String _out = '';
-  bool _busy = false;
+// WARNING: 내 코드
+// class _AnalyzePageState extends State<AnalyzePage> {
+//   final _c = TextEditingController();
+//   final String _out = '';
+//   final bool _busy = false;
 
-  @override
-  State<AnalyzePage> createState() => _AnalyzePageState();
-}
+//   @override
+//   State<AnalyzePage> createState() => _AnalyzePageState();
+// }
 
 class _AnalyzePageState extends State<AnalyzePage> {
   final TextEditingController _taskController = TextEditingController();
@@ -414,8 +415,12 @@ class _AnalyzePageState extends State<AnalyzePage> {
       _tasks[index]
         ..isAnalyzing = false
         ..isAnalyzed = true
-        ..progress = 35 + (index * 10) % 60 // 예시값
-        ..analysisText = "이 작업은 ${_tasks[index].progress.toStringAsFixed(0)}%의 피로도를 보입니다.\n집중 시간을 조절해보세요.";
+        ..progress =
+            35 +
+            (index * 10) %
+                60 // 예시값
+        ..analysisText =
+            "이 작업은 ${_tasks[index].progress.toStringAsFixed(0)}%의 피로도를 보입니다.\n집중 시간을 조절해보세요.";
     });
   }
 
@@ -440,9 +445,9 @@ class _AnalyzePageState extends State<AnalyzePage> {
                   value: _tasks.isEmpty
                       ? 0
                       : _tasks
-                              .map((t) => t.progress)
-                              .fold<double>(0, (a, b) => a + b) /
-                          (_tasks.length * 100),
+                                .map((t) => t.progress)
+                                .fold<double>(0, (a, b) => a + b) /
+                            (_tasks.length * 100),
                   minHeight: 10,
                   borderRadius: BorderRadius.circular(10),
                   backgroundColor: Colors.grey.shade300,
@@ -495,7 +500,9 @@ class _AnalyzePageState extends State<AnalyzePage> {
                                         : () => _analyzeTask(index),
                                     style: OutlinedButton.styleFrom(
                                       side: const BorderSide(
-                                          color: Colors.blueAccent, width: 1.5),
+                                        color: Colors.blueAccent,
+                                        width: 1.5,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -556,8 +563,10 @@ class _AnalyzePageState extends State<AnalyzePage> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             suffixIcon: Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: Icon(
@@ -567,37 +576,41 @@ class _AnalyzePageState extends State<AnalyzePage> {
             ),
           ),
           onSubmitted: _addTask,
-      appBar: AppBar(title: const Text('AI MET 추정')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _c,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: '활동 (예: 2km 등교)',
-              ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      final q = _c.text.trim();
-                      if (q.isEmpty) return;
-                      setState(() => _busy = true);
-                      final r = await estimateMet(q);
-                      setState(() {
-                        _out = r;
-                        _busy = false;
-                      });
-                    },
-              child: Text(_busy ? '실행 중...' : '실행'),
-            ),
-            const SizedBox(height: 12),
-            SelectableText(_out),
-          ],
+
+          // WARNING: 내 코드
+          // appBar: AppBar(title: const Text('AI MET 추정')),
+          // body: Padding(
+          //   padding: const EdgeInsets.all(16),
+          //   child: Column(
+          //     children: [
+          //       TextField(
+          //         controller: _c,
+          //         decoration: const InputDecoration(
+          //           border: OutlineInputBorder(),
+          //           labelText: '활동 (예: 2km 등교)',
+          //         ),
+          //       ),
+          //       const SizedBox(height: 12),
+          //       ElevatedButton(
+          //         onPressed: _busy
+          //             ? null
+          //             : () async {
+          //                 final q = _c.text.trim();
+          //                 if (q.isEmpty) return;
+          //                 setState(() => _busy = true);
+          //                 final r = await estimateMet(q);
+          //                 setState(() {
+          //                   _out = r;
+          //                   _busy = false;
+          //                 });
+          //               },
+          //         child: Text(_busy ? '실행 중...' : '실행'),
+          //       ),
+          //       const SizedBox(height: 12),
+          //       SelectableText(_out),
+          //     ],
+          //   ),
+          // ),
         ),
       ),
     );
@@ -612,8 +625,8 @@ class Task {
   String analysisText;
 
   Task(this.title)
-      : progress = 0,
-        isAnalyzed = false,
-        isAnalyzing = false,
-        analysisText = '';
+    : progress = 0,
+      isAnalyzed = false,
+      isAnalyzing = false,
+      analysisText = '';
 }
