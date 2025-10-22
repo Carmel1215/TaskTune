@@ -1,16 +1,37 @@
-# tasktune
+# TaskTune
 
-A new Flutter project.
+TaskTune은 AI 기반 할 일 피로도 관리 시스템입니다.
 
-## Getting Started
+## Installation
 
-This project is a starting point for a Flutter application.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+pip install foobar
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Usage
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```python
+import foobar
+
+# returns 'words'
+foobar.pluralize('word')
+
+# returns 'geese'
+foobar.pluralize('goose')
+
+# returns 'phenomenon'
+foobar.singularize('phenomena')
+```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
