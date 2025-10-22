@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tasktune/screens/dashboard_page.dart';
 import 'package:tasktune/screens/analyze_page.dart';
 import 'package:tasktune/screens/settings_page.dart';
@@ -42,9 +43,9 @@ class _AppState extends State<App> {
                     height: 64,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.centerLeft,
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.apps),
+                        SvgPicture.asset('assets/icons/TestLogo_Battery.svg', width: 50, height: 50,),/*Icon(Icons.assignment),*/
                         SizedBox(width: 6),
                         Text('TaskTune'),
                       ],

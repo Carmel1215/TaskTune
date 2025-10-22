@@ -14,7 +14,7 @@ class DashboardPage extends StatelessWidget {
             children: [
               _DashBoardCard(
                 title: '오늘의 할일',
-                icon: Icons.calendar_today_rounded,
+                icon: Icons.event_note_rounded,
                 body: Text('body'),
               ),
               _DashBoardCard(
