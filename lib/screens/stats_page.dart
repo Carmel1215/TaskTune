@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class StatsPage extends StatelessWidget {
@@ -6,48 +7,55 @@ class StatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
+    return SingleChildScrollView(
       child: Center(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 511,
-                    height: 500,
-                    child: StatsCard(
-                      title: '완료한 작업',
-                      icon: Icons.checklist,
-                      body: SizedBox(
-                        width: double.infinity,
-                        height: 420,
-                        child: WeeklyBarChart(),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // 화면 전체 가로 폭을 반으로 나눔 (간격 7 고려)
+                  final width = (constraints.maxWidth - 7) / 2;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: width,
+                        height: 510,
+                        child: const StatsCard(
+                          title: '완료한 작업',
+                          icon: Icons.event_available,
+                          body: SizedBox(
+                            width: double.infinity,
+                            height: 420,
+                            child: WeeklyBarChart(),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 7),
-                  SizedBox(
-                    width: 511,
-                    height: 500,
-                    child: StatsCard(
-                      title: '피로도',
-                      icon: Icons.hardware,
-                      body: SizedBox(
-                        width: double.infinity,
-                        height: 420,
-                        child: FatiguePieChart(),
+                      const SizedBox(width: 7),
+                      SizedBox(
+                        width: width,
+                        height: 510,
+                        child: const StatsCard(
+                          title: '피로도',
+                          icon: Icons.battery_4_bar,
+                          body: SizedBox(
+                            width: double.infinity,
+                            height: 420,
+                            child: FatiguePieChart(),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
-              SizedBox(height: 5),
-              StatsCard(
+              const SizedBox(height: 5),
+              const StatsCard(
                 title: '작업 별 피로도 순위',
-                icon: Icons.filter_alt,
+                icon: Icons.leaderboard,
                 body: TopFatigueTasksTable(),
               ),
             ],
@@ -73,7 +81,7 @@ class StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 1,
+      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -85,7 +93,13 @@ class StatsCard extends StatelessWidget {
               children: [
                 Icon(icon),
                 const SizedBox(width: 10),
-                Text(title),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
               ],
             ),
             const Divider(),
@@ -184,7 +198,7 @@ class FatiguePieChart extends StatelessWidget {
                 title: '',
               ),
               PieChartSectionData(
-                color: Colors.grey.shade300,
+                color: Colors.grey[300],
                 value: remaining,
                 radius: 100,
                 title: '',
@@ -221,22 +235,21 @@ class TopFatigueTasksTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tasks = [
-      {'name': '회의 준비', 'fatigue': 92},
+      {'name': '회의 준비', 'fatigue': 86},
       {'name': '리포트 작성', 'fatigue': 85},
-      {'name': '코드 리뷰', 'fatigue': 78},
-      {'name': '이메일 응답', 'fatigue': 71},
-      {'name': '팀 미팅', 'fatigue': 67},
-      {'name': '기타 업무', 'fatigue': 60},
+      {'name': '코드 리뷰', 'fatigue': 71},
+      {'name': '이메일 응답', 'fatigue': 70},
+      {'name': '팀 미팅', 'fatigue': 49},
+      {'name': '기타 업무', 'fatigue': 48},
     ];
 
-    final topTasks = (List<Map<String, dynamic>>.from(
-      tasks,
-    )..sort((a, b) => b['fatigue'].compareTo(a['fatigue']))).take(5).toList();
+    final topTasks = (List<Map<String, dynamic>>.from(tasks)
+      ..sort((a, b) => b['fatigue'].compareTo(a['fatigue']))).take(5).toList();
 
     final maxFatigue = topTasks.first['fatigue'] as int;
 
     return Card(
-      elevation: 10,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -283,8 +296,10 @@ class TopFatigueTasksTable extends StatelessWidget {
                                   color: fatigue > 85
                                       ? Colors.redAccent
                                       : (fatigue > 70
-                                            ? Colors.orangeAccent
-                                            : Colors.lightBlue),
+                                          ? Colors.orangeAccent
+                                          : (fatigue > 50
+                                              ? Colors.lightGreen
+                                              : Colors.lightBlue)),
                                   borderRadius: BorderRadius.circular(5),
                                 ),
                               ),

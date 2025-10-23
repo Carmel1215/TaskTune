@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 enum Gender { male, female }
@@ -39,7 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionTitle('기본 정보'),
+          const Text('기본 정보',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
 
           // 성별
@@ -64,37 +67,46 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
 
           // 나이
-          TextFormField(
-            controller: _ageCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '나이',
-              suffixText: '세',
-              prefixIcon: Icon(Icons.cake_outlined),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: TextFormField(
+              controller: _ageCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: '나이',
+                suffixText: '세',
+                prefixIcon: Icon(Icons.cake_outlined),
+              ),
             ),
           ),
           const SizedBox(height: 12),
 
           // 키
-          TextFormField(
-            controller: _heightCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '키',
-              suffixText: 'cm',
-              prefixIcon: Icon(Icons.height),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: TextFormField(
+              controller: _heightCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: '키',
+                suffixText: 'cm',
+                prefixIcon: Icon(Icons.height),
+              ),
             ),
           ),
           const SizedBox(height: 12),
 
           // 체중
-          TextFormField(
-            controller: _weightCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '체중',
-              suffixText: 'kg',
-              prefixIcon: Icon(Icons.monitor_weight_outlined),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: TextFormField(
+              controller: _weightCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: '체중',
+                suffixText: 'kg',
+                prefixIcon: Icon(Icons.monitor_weight_outlined),
+              ),
             ),
           ),
 
@@ -103,18 +115,21 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 8),
 
           // 체지방률
-          TextFormField(
-            controller: _bodyFatCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '체지방률',
-              suffixText: '%',
-              prefixIcon: Icon(Icons.percent),
-              helperText: 'Katch–McArdle 사용 시 권장',
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: TextFormField(
+              controller: _bodyFatCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: '체지방률',
+                suffixText: '%',
+                prefixIcon: Icon(Icons.percent),
+                helperText: 'Katch–McArdle 사용 시 권장',
+              ),
             ),
           ),
-          const SizedBox(height: 36),
 
+          const SizedBox(height: 36),
           const _SectionTitle('결과(미계산)'),
           const SizedBox(height: 8),
 
