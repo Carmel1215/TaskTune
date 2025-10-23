@@ -427,7 +427,8 @@ class _AnalyzePageState extends State<AnalyzePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Analyze Page")),
+      appBar: AppBar(title: const Text("분석", 
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)),
       body: Column(
         children: [
           // 🔹 전체 피로도
@@ -465,7 +466,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
               itemBuilder: (context, index) {
                 final task = _tasks[index];
                 return Card(
-                  elevation: 3,
+                  elevation: 2,
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

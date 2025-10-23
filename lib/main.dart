@@ -66,7 +66,7 @@ class _AppState extends State<App> {
                               onTap: () => setState(() => selected = 0),
                             ),
                             MenuItem(
-                              icon: Icons.checklist_rounded,
+                              icon: Icons.auto_awesome,
                               label: '할 일 분석',
                               selected: selected == 1,
                               onTap: () => setState(() => selected = 1),
