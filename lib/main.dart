@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:tasktune/data/app_state.dart';
 import 'package:tasktune/screens/dashboard_page.dart';
 import 'package:tasktune/screens/analyze_page.dart';
 import 'package:tasktune/screens/settings_page.dart';
@@ -21,99 +23,107 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TaskTune',
-      theme: ThemeData(
-        primaryColor: Colors.blue,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-      ),
-      home: Scaffold(
-        body: Row(
-          children: [
-            // --- 사이드바 ---
-            SizedBox(
-              width: 220,
-              child: Column(
-                children: [
-                  // 앱 로고
-                  Container(
-                    height: 64,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      children: [
-                        SvgPicture.asset('assets/icons/TestLogo_Battery.svg', width: 50, height: 50,),/*Icon(Icons.assignment),*/
-                        SizedBox(width: 6),
-                        Text('TaskTune'),
-                      ],
+    return ChangeNotifierProvider(
+      create: (_) => AppState(),
+      child: MaterialApp(
+        title: 'TaskTune',
+        theme: ThemeData(
+          primaryColor: Colors.blue,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+        ),
+        home: Scaffold(
+          body: Row(
+            children: [
+              // --- 사이드바 ---
+              SizedBox(
+                width: 220,
+                child: Column(
+                  children: [
+                    // 앱 로고
+                    Container(
+                      height: 64,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/TestLogo_Battery.svg',
+                            width: 50,
+                            height: 50,
+                          ),
+                          /*Icon(Icons.assignment),*/
+                          const SizedBox(width: 6),
+                          const Text('TaskTune'),
+                        ],
+                      ),
                     ),
-                  ),
-                  const Divider(height: 1, color: Colors.grey),
-                  // 메뉴
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            MenuItem(
-                              icon: Icons.dashboard_rounded,
-                              label: '대시보드',
-                              selected: selected == 0,
-                              onTap: () => setState(() => selected = 0),
-                            ),
-                            MenuItem(
-                              icon: Icons.auto_awesome,
-                              label: '할 일 분석',
-                              selected: selected == 1,
-                              onTap: () => setState(() => selected = 1),
-                            ),
-                            MenuItem(
-                              icon: Icons.bar_chart_rounded,
-                              label: '통계',
-                              selected: selected == 2,
-                              onTap: () => setState(() => selected = 2),
-                            ),
-                          ],
-                        ),
-                        // 설정
-                        Column(
-                          children: [
-                            MenuItem(
-                              icon: Icons.settings_rounded,
-                              label: '설정',
-                              selected: selected == 3,
-                              onTap: () => setState(() => selected = 3),
-                            ),
-                          ],
-                        ),
-                      ],
+                    const Divider(height: 1, color: Colors.grey),
+                    // 메뉴
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              MenuItem(
+                                icon: Icons.dashboard_rounded,
+                                label: '대시보드',
+                                selected: selected == 0,
+                                onTap: () => setState(() => selected = 0),
+                              ),
+                              MenuItem(
+                                icon: Icons.auto_awesome,
+                                label: '할 일 분석',
+                                selected: selected == 1,
+                                onTap: () => setState(() => selected = 1),
+                              ),
+                              MenuItem(
+                                icon: Icons.bar_chart_rounded,
+                                label: '통계',
+                                selected: selected == 2,
+                                onTap: () => setState(() => selected = 2),
+                              ),
+                            ],
+                          ),
+                          // 설정
+                          Column(
+                            children: [
+                              MenuItem(
+                                icon: Icons.settings_rounded,
+                                label: '설정',
+                                selected: selected == 3,
+                                onTap: () => setState(() => selected = 3),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            // --- 구분선 ---
-            Container(
-              width: 1,
-              color: Colors.grey,
-            ),
-            // --- 메인 화면 ---
-            Expanded(
-              child: IndexedStack(
-                index: selected,
-                children: [
-                  const DashboardPage(),
-                  const AnalyzePage(),
-                  const StatsPage(),
-                  const SettingsPage(),
-                ],
+              // --- 구분선 ---
+              Container(
+                width: 1,
+                color: Colors.grey,
               ),
-            ),
-          ],
+              // --- 메인 화면 ---
+              Expanded(
+                child: IndexedStack(
+                  index: selected,
+                  children: [
+                    const DashboardPage(),
+                    const AnalyzePage(),
+                    const StatsPage(),
+                    const SettingsPage(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
