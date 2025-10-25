@@ -1,10 +1,14 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:openai_dart/openai_dart.dart';
 import 'package:tasktune/env/env.dart';
+import 'package:tasktune/data/app_state.dart';
+import 'package:tasktune/api/fatigue_api.dart';
+import 'package:provider/provider.dart';
 
 final client = OpenAIClient(apiKey: Env.apiKey);
+final fatigueApi = FatigueApi('http://localhost:8000');
 
 const metTable = [
   // TODO: JSON 파일 따로 분리하고 읽어오는 시스템 만들기
@@ -320,14 +324,14 @@ const tool = ChatCompletionTool(
 );
 
 Future<String> estimateMet(String activity) async {
-  // 툴 호출 강제
+  // 1) MET 테이블 주입(툴 강제)
   final res1 = await client.createChatCompletion(
     request: CreateChatCompletionRequest(
       model: const ChatCompletionModel.model(ChatCompletionModels.gpt5),
-      messages: [
-        const ChatCompletionMessage.developer(
+      messages: const [
+        ChatCompletionMessage.developer(
           content: ChatCompletionDeveloperMessageContent.text(
-            'Load Met table, then answer user query.',
+            'Load MET table, then answer user query.',
           ),
         ),
       ],
@@ -344,15 +348,18 @@ Future<String> estimateMet(String activity) async {
   final toolCall = res1.choices.first.message.toolCalls?.first;
   if (toolCall == null) return '';
 
+  // 2) JSON 모드로 숫자만 받기
   final res2 = await client.createChatCompletion(
     request: CreateChatCompletionRequest(
       model: const ChatCompletionModel.model(ChatCompletionModels.gpt5),
+      responseFormat: const ResponseFormat.jsonObject(),
       messages: [
         const ChatCompletionMessage.developer(
           content: ChatCompletionDeveloperMessageContent.text(
-            'Load MET Table, then answer user query.',
+            'You are a MET estimation model. Use the loaded MET table if relevant. Return only valid JSON: {"met": <number>}.',
           ),
         ),
+        // 직전 툴 호출 히스토리 유지
         ChatCompletionMessage.assistant(
           toolCalls: res1.choices.first.message.toolCalls,
         ),
@@ -362,16 +369,16 @@ Future<String> estimateMet(String activity) async {
         ),
         ChatCompletionMessage.user(
           content: ChatCompletionUserMessageContent.string(
-            'Estimate the MET value for "$activity". '
-            'Return "<number> - <one sentence reason>".',
+            'Estimate the MET value for "$activity". Return as {"met": <number>}.',
           ),
         ),
       ],
-      tools: [tool],
     ),
   );
 
-  return res2.choices.first.message.content?.toString() ?? '';
+  final content = res2.choices.first.message.content?.toString() ?? '{}';
+  final data = jsonDecode(content) as Map<String, dynamic>;
+  return (data['met'] ?? 0).toString();
 }
 
 class AnalyzePage extends StatefulWidget {
@@ -380,254 +387,193 @@ class AnalyzePage extends StatefulWidget {
   State<AnalyzePage> createState() => _AnalyzePageState();
 }
 
-// WARNING: 내 코드
-// class _AnalyzePageState extends State<AnalyzePage> {
-//   final _c = TextEditingController();
-//   final String _out = '';
-//   final bool _busy = false;
-
-//   @override
-//   State<AnalyzePage> createState() => _AnalyzePageState();
-// }
-
 class _AnalyzePageState extends State<AnalyzePage> {
-  final TextEditingController _taskController = TextEditingController();
-  final List<Task> _tasks = [];
+  final _controller = TextEditingController(); // 할 일 제목
+  final _focus = FocusNode();
+
+  final _durationController = TextEditingController(); // 소요 시간(분)
+  double _preference = 0.5; // 선호도 (0.0~1.0)
+
+  bool _busy = false;
+  String? _lastTitle;
+  double? _lastFatigue;
 
   @override
   void dispose() {
-    _taskController.dispose();
+    _controller.dispose();
+    _durationController.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
-  void _addTask(String title) {
-    if (title.trim().isEmpty) return;
-    setState(() {
-      _tasks.add(Task(title.trim()));
-      _taskController.clear();
-    });
-  }
+  Future<void> _analyzeAndAdd() async {
+    final title = _controller.text.trim();
+    if (title.isEmpty || _busy) return;
 
-  void _analyzeTask(int index) async {
-    setState(() => _tasks[index].isAnalyzing = true);
-    await Future.delayed(const Duration(seconds: 1)); // (백엔드 응답 대기 가정)
+    setState(() => _busy = true);
+
+    // 1) OpenAI로 MET 수신(JSON {"met": number})
+    final metJson = await estimateMet(title);
+    final metRaw = (double.tryParse(metJson) ?? 0.0).clamp(0.0, 100.0);
+
+    // 2) UI 입력값
+    final minutes = int.tryParse(_durationController.text.trim()) ?? 0;
+    final pref01 = _preference; // 0.0 ~ 1.0
+
+    // 3) FastAPI로 최종 피로도 예측
+    final fatigue = await fatigueApi.predictFatigue(
+      met: metRaw,
+      durationMin: minutes,
+      preference01: pref01,
+    );
+
+    // 4) 저장: Todo.fatigue 사용
+    context.read<AppState>().addTodo(
+      Todo(title: title, fatigue: fatigue),
+    );
+
     setState(() {
-      _tasks[index]
-        ..isAnalyzing = false
-        ..isAnalyzed = true
-        ..progress =
-            35 +
-            (index * 10) %
-                60 // 예시값
-        ..analysisText =
-            "이 작업은 ${_tasks[index].progress.toStringAsFixed(0)}%의 피로도를 보입니다.\n집중 시간을 조절해보세요.";
+      _lastTitle =
+          '$title · ${minutes > 0 ? '$minutes분 · ' : ''}선호도 ${pref01.toStringAsFixed(1)}';
+      _lastFatigue = fatigue;
+      _busy = false;
+      _controller.clear();
+      _durationController.clear();
+      _preference = 0.5;
     });
+    _focus.requestFocus();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('"$title" 최종 피로도 ${fatigue.toStringAsFixed(1)} 추가됨'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("분석", 
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)),
-      body: Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: [
-          // 🔹 전체 피로도
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "전체 피로도",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: _tasks.isEmpty
-                      ? 0
-                      : _tasks
-                                .map((t) => t.progress)
-                                .fold<double>(0, (a, b) => a + b) /
-                            (_tasks.length * 100),
-                  minHeight: 10,
-                  borderRadius: BorderRadius.circular(10),
-                  backgroundColor: Colors.grey.shade300,
-                  color: Colors.blueAccent,
-                ),
-              ],
-            ),
-          ),
-
-          // 🔹 할 일 리스트 (카드형)
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _tasks.length,
-              itemBuilder: (context, index) {
-                final task = _tasks[index];
-                return Card(
-                  elevation: 2,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 🔸 제목 + 버튼/퍼센트
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              task.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            task.isAnalyzed
-                                ? Text(
-                                    "(${task.progress.toStringAsFixed(0)}%)",
-                                    style: const TextStyle(
-                                      color: Colors.blueAccent,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : OutlinedButton(
-                                    onPressed: task.isAnalyzing
-                                        ? null
-                                        : () => _analyzeTask(index),
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(
-                                        color: Colors.blueAccent,
-                                        width: 1.5,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: task.isAnalyzing
-                                        ? const SizedBox(
-                                            height: 16,
-                                            width: 16,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.blueAccent,
-                                            ),
-                                          )
-                                        : const Text(
-                                            "분석하기",
-                                            style: TextStyle(
-                                              color: Colors.blueAccent,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                  ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        // 🔸 분석 결과 텍스트
-                        if (task.isAnalyzed)
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              task.analysisText,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          ),
-                      ],
+          // 제목 + 분석 버튼
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focus,
+                  onSubmitted: (_) => _analyzeAndAdd(),
+                  decoration: InputDecoration(
+                    hintText: '할 일을 입력하세요',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
                     ),
                   ),
-                );
-              },
+                  textInputAction: TextInputAction.done,
+                ),
+              ),
+              const SizedBox(width: 12),
+              FilledButton.icon(
+                onPressed: _busy ? null : _analyzeAndAdd,
+                icon: _busy
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.auto_awesome),
+                label: const Text('분석+추가'),
+                style: FilledButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // 소요 시간(분)
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _durationController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onSubmitted: (_) => _analyzeAndAdd(),
+                  decoration: InputDecoration(
+                    labelText: '소요 시간',
+                    hintText: '예: 45',
+                    suffixText: '분',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // 선호도 슬라이더
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '선호도 (0.0 ~ 1.0)',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              Slider(
+                value: _preference,
+                min: 0.0,
+                max: 1.0,
+                divisions: 10,
+                label: _preference.toStringAsFixed(1),
+                onChanged: (v) => setState(() => _preference = v),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          if (_lastTitle != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '"$_lastTitle" · 피로도 ${_lastFatigue!.toStringAsFixed(1)}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
+
+          const Spacer(),
+          Text(
+            'Enter 또는 [분석+추가]를 누르면 분석 후 바로 목록에 저장돼요.',
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
         ],
       ),
-
-      // 🔹 하단 고정 입력창
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: TextField(
-          controller: _taskController,
-          decoration: InputDecoration(
-            hintText: "할 일 입력 후 Enter",
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Icon(
-                Icons.keyboard_return_rounded,
-                color: Colors.grey.shade500,
-              ),
-            ),
-          ),
-          onSubmitted: _addTask,
-
-          // WARNING: 내 코드
-          // appBar: AppBar(title: const Text('AI MET 추정')),
-          // body: Padding(
-          //   padding: const EdgeInsets.all(16),
-          //   child: Column(
-          //     children: [
-          //       TextField(
-          //         controller: _c,
-          //         decoration: const InputDecoration(
-          //           border: OutlineInputBorder(),
-          //           labelText: '활동 (예: 2km 등교)',
-          //         ),
-          //       ),
-          //       const SizedBox(height: 12),
-          //       ElevatedButton(
-          //         onPressed: _busy
-          //             ? null
-          //             : () async {
-          //                 final q = _c.text.trim();
-          //                 if (q.isEmpty) return;
-          //                 setState(() => _busy = true);
-          //                 final r = await estimateMet(q);
-          //                 setState(() {
-          //                   _out = r;
-          //                   _busy = false;
-          //                 });
-          //               },
-          //         child: Text(_busy ? '실행 중...' : '실행'),
-          //       ),
-          //       const SizedBox(height: 12),
-          //       SelectableText(_out),
-          //     ],
-          //   ),
-          // ),
-        ),
-      ),
     );
   }
-}
-
-class Task {
-  String title;
-  double progress;
-  bool isAnalyzed;
-  bool isAnalyzing;
-  String analysisText;
-
-  Task(this.title)
-    : progress = 0,
-      isAnalyzed = false,
-      isAnalyzing = false,
-      analysisText = '';
 }
