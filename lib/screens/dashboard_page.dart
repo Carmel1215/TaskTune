@@ -90,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         const SizedBox(height: 8),
         Text(
-          "오늘 완료한 작업 피로도: ${completedMet.toInt()}%",
+          "오늘 완료한 작업 피로도: ${completedMet.toInt()}",
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
@@ -113,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ...remainingTodos.map(
           (t) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
-            child: Text("${t.title} - ${t.fatigue.toStringAsFixed(0)}%"),
+            child: Text("${t.title} - ${t.fatigue.toStringAsFixed(0)}"),
           ),
         ),
       ],
@@ -154,7 +154,7 @@ class _DashboardPageState extends State<DashboardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "오늘 총 작업 피로도: ${totalMet.toInt()}%",
+          "오늘 총 작업 피로도: ${totalMet.toInt()}",
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 10),
@@ -169,7 +169,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         const SizedBox(height: 6),
         Text(
-          "오늘 작업 평균 피로도: ${avg.toStringAsFixed(0)}%",
+          "오늘 작업 평균 피로도: ${avg.toStringAsFixed(0)}",
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 10),
@@ -244,7 +244,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  '피로도: ${t.fatigue.toStringAsFixed(0)}%',
+                                  '피로도: ${t.fatigue.toStringAsFixed(0)}',
                                   style: TextStyle(
                                     color: t.isDone
                                         ? Colors.grey

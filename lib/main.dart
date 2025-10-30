@@ -5,7 +5,6 @@ import 'package:tasktune/data/app_state.dart';
 import 'package:tasktune/screens/dashboard_page.dart';
 import 'package:tasktune/screens/analyze_page.dart';
 import 'package:tasktune/screens/settings_page.dart';
-import 'package:tasktune/screens/stats_page.dart';
 
 void main() {
   runApp(const App());
@@ -26,6 +25,7 @@ class _AppState extends State<App> {
     return ChangeNotifierProvider(
       create: (_) => AppState(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false, // 디버그 표시 제거
         title: 'TaskTune',
         theme: ThemeData(
           primaryColor: Colors.blue,
@@ -80,12 +80,6 @@ class _AppState extends State<App> {
                                 selected: selected == 1,
                                 onTap: () => setState(() => selected = 1),
                               ),
-                              MenuItem(
-                                icon: Icons.bar_chart_rounded,
-                                label: '통계',
-                                selected: selected == 2,
-                                onTap: () => setState(() => selected = 2),
-                              ),
                             ],
                           ),
                           // 설정
@@ -94,8 +88,8 @@ class _AppState extends State<App> {
                               MenuItem(
                                 icon: Icons.settings_rounded,
                                 label: '설정',
-                                selected: selected == 3,
-                                onTap: () => setState(() => selected = 3),
+                                selected: selected == 2,
+                                onTap: () => setState(() => selected = 2),
                               ),
                             ],
                           ),
@@ -117,7 +111,6 @@ class _AppState extends State<App> {
                   children: [
                     const DashboardPage(),
                     const AnalyzePage(),
-                    const StatsPage(),
                     const SettingsPage(),
                   ],
                 ),

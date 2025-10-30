@@ -1,9 +1,10 @@
-# server.py
 import json, numpy as np, torch, torch.nn as nn
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+# uvicorn server:app --reload --port 8000
 
 MODEL_PATH = Path("met_fatigue_minimal.pt")
 

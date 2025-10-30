@@ -397,6 +397,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
   bool _busy = false;
   String? _lastTitle;
   double? _lastFatigue;
+  double? _lastKcal; // 마지막 계산 kcal
 
   @override
   void dispose() {
@@ -420,22 +421,28 @@ class _AnalyzePageState extends State<AnalyzePage> {
     final minutes = int.tryParse(_durationController.text.trim()) ?? 0;
     final pref01 = _preference; // 0.0 ~ 1.0
 
-    // 3) FastAPI로 최종 피로도 예측
+    // 3) kcal 계산 (RMR 기반: 총 소모)
+    final app = context.read<AppState>();
+    final kcal = app.computeKcalFromMet(
+      met: metRaw,
+      minutes: minutes,
+    ); // net=true면 순소모
+
+    // 4) FastAPI로 최종 피로도 예측
     final fatigue = await fatigueApi.predictFatigue(
       met: metRaw,
       durationMin: minutes,
       preference01: pref01,
     );
 
-    // 4) 저장: Todo.fatigue 사용
-    context.read<AppState>().addTodo(
-      Todo(title: title, fatigue: fatigue),
-    );
+    // 5) 저장: Todo에 fatigue + kcal 함께 저장
+    app.addTodo(Todo(title: title, fatigue: fatigue, kcal: kcal));
 
     setState(() {
       _lastTitle =
           '$title · ${minutes > 0 ? '$minutes분 · ' : ''}선호도 ${pref01.toStringAsFixed(1)}';
       _lastFatigue = fatigue;
+      _lastKcal = kcal;
       _busy = false;
       _controller.clear();
       _durationController.clear();
@@ -445,7 +452,9 @@ class _AnalyzePageState extends State<AnalyzePage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('"$title" 최종 피로도 ${fatigue.toStringAsFixed(1)} 추가됨'),
+        content: Text(
+          '"$title" 추가됨 · 피로도 ${fatigue.toStringAsFixed(1)} · ${kcal.toStringAsFixed(0)} kcal',
+        ),
       ),
     );
   }
@@ -559,7 +568,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '"$_lastTitle" · 피로도 ${_lastFatigue!.toStringAsFixed(1)}',
+                '"$_lastTitle" · 피로도 ${_lastFatigue!.toStringAsFixed(1)} · ${_lastKcal!.toStringAsFixed(0)} kcal',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
