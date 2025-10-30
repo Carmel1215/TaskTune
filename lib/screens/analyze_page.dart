@@ -327,7 +327,7 @@ Future<String> estimateMet(String activity) async {
   // 1) MET 테이블 주입(툴 강제)
   final res1 = await client.createChatCompletion(
     request: CreateChatCompletionRequest(
-      model: const ChatCompletionModel.model(ChatCompletionModels.gpt5),
+      model: const ChatCompletionModel.model(ChatCompletionModels.gpt4oMini),
       messages: const [
         ChatCompletionMessage.developer(
           content: ChatCompletionDeveloperMessageContent.text(
@@ -351,7 +351,7 @@ Future<String> estimateMet(String activity) async {
   // 2) JSON 모드로 숫자만 받기
   final res2 = await client.createChatCompletion(
     request: CreateChatCompletionRequest(
-      model: const ChatCompletionModel.model(ChatCompletionModels.gpt5),
+      model: const ChatCompletionModel.model(ChatCompletionModels.gpt4oMini),
       responseFormat: const ResponseFormat.jsonObject(),
       messages: [
         const ChatCompletionMessage.developer(
@@ -496,7 +496,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.auto_awesome),
-                label: const Text('분석+추가'),
+                label: const Text('분석'),
                 style: FilledButton.styleFrom(
                   shape: const StadiumBorder(),
                   padding: const EdgeInsets.symmetric(
@@ -578,7 +578,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
 
           const Spacer(),
           Text(
-            'Enter 또는 [분석+추가]를 누르면 분석 후 바로 목록에 저장돼요.',
+            'Enter 또는 [분석]을 누르면 분석 후 바로 목록에 저장돼요.',
             style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
         ],

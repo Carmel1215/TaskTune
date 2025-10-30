@@ -30,6 +30,9 @@ class AppState with ChangeNotifier {
   double? rmrDay; // kcal/day
   double? rmrPerMin; // kcal/min
 
+  // 일일 피로도 용량(분모)
+  double dailyFatigueCapacity = 1000.0;
+
   // 할 일 목록
   List<Todo> todos = [];
 
@@ -106,7 +109,6 @@ class AppState with ChangeNotifier {
       weightKg: weight,
       bodyFatPct: bodyFat > 0 ? bodyFat : null,
     );
-    // 내부 상태는 보존하고, 호출자는 반환값만 사용
     return r;
   }
 
@@ -122,6 +124,12 @@ class AppState with ChangeNotifier {
     final t = minutes.clamp(0, 24 * 60);
     return r * (m * t) / 1440.0; // kcal
   }
+
+  // ===== 오늘 합계(대시보드용) =====
+  double get totalFatigueToday =>
+      todos.fold<double>(0.0, (s, t) => s + t.fatigue);
+
+  double get totalKcalToday => todos.fold<double>(0.0, (s, t) => s + t.kcal);
 
   // ===== To-do 관리 =====
   void addTodo(Todo todo) {
@@ -161,6 +169,12 @@ class AppState with ChangeNotifier {
     if (isDone != null) t.isDone = isDone;
     if (fatigue != null) t.fatigue = fatigue;
     if (kcal != null) t.kcal = kcal;
+    notifyListeners();
+  }
+
+  // ===== 설정 업데이트(선택) =====
+  void updateDailyFatigueCapacity(double v) {
+    dailyFatigueCapacity = v;
     notifyListeners();
   }
 
