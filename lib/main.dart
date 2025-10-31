@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tasktune/data/app_state.dart';
 import 'package:tasktune/screens/dashboard_page.dart';
 import 'package:tasktune/screens/analyze_page.dart';
+import 'package:tasktune/screens/fatigue_setting_page.dart';
 import 'package:tasktune/screens/settings_page.dart';
 
 void main() {
@@ -80,6 +81,12 @@ class _AppState extends State<App> {
                                 selected: selected == 1,
                                 onTap: () => setState(() => selected = 1),
                               ),
+                              MenuItem(
+                                icon: Icons.bolt_rounded,
+                                label: '피로도 설정',
+                                selected: selected == 2,
+                                onTap: () => setState(() => selected = 2),
+                              ),
                             ],
                           ),
                           // 설정
@@ -88,8 +95,8 @@ class _AppState extends State<App> {
                               MenuItem(
                                 icon: Icons.settings_rounded,
                                 label: '설정',
-                                selected: selected == 2,
-                                onTap: () => setState(() => selected = 2),
+                                selected: selected == 3,
+                                onTap: () => setState(() => selected = 3),
                               ),
                             ],
                           ),
@@ -111,6 +118,7 @@ class _AppState extends State<App> {
                   children: [
                     const DashboardPage(),
                     const AnalyzePage(),
+                    const FatigueSettingPage(),
                     const SettingsPage(),
                   ],
                 ),
