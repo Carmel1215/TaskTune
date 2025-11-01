@@ -324,7 +324,7 @@ const tool = ChatCompletionTool(
 );
 
 Future<String> estimateMet(String activity) async {
-  // 1) MET 테이블 주입(툴 강제)
+  // MET 테이블 주입(툴 강제)
   final res1 = await client.createChatCompletion(
     request: CreateChatCompletionRequest(
       model: const ChatCompletionModel.model(ChatCompletionModels.gpt4oMini),
@@ -348,7 +348,7 @@ Future<String> estimateMet(String activity) async {
   final toolCall = res1.choices.first.message.toolCalls?.first;
   if (toolCall == null) return '';
 
-  // 2) JSON 모드로 숫자만 받기
+  // JSON 모드로 숫자만 받기
   final res2 = await client.createChatCompletion(
     request: CreateChatCompletionRequest(
       model: const ChatCompletionModel.model(ChatCompletionModels.gpt4oMini),

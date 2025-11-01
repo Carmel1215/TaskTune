@@ -18,7 +18,10 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildStatsCardBody(List<Todo> todos, AppState app) {
     if (todos.isEmpty) {
       return const Center(
-        child: Text("AI가 할 일의 데이터 기반으로 통계를 제공합니다."),
+        child: Text(
+          "Kcal 통계를 보려면 할 일을 추가해주세요.",
+          style: TextStyle(color: Colors.grey),
+        ),
       );
     }
 

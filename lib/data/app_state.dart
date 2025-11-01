@@ -30,7 +30,7 @@ class AppState with ChangeNotifier {
   double? rmrDay; // kcal/day
   double? rmrPerMin; // kcal/min
 
-  // 일일 피로도 용량(분모)
+  // 일일 피로도 최대치
   double dailyFatigueCapacity = 1000.0;
 
   // 할 일 목록
