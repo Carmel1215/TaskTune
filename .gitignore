@@ -44,6 +44,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# 개인정보 보호
-.env
-/lib/env/env.g.dart
+# # 개인정보 보호
+# .env
+# /lib/env/env.g.dart
